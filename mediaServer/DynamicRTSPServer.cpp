@@ -19,6 +19,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 // Implementation
 
 #include "DynamicRTSPServer.hh"
+#include "testRTSPClient.hh"
 #include <liveMedia.hh>
 #include <string.h>
 
@@ -51,39 +52,55 @@ void DynamicRTSPServer
 			   lookupServerMediaSessionCompletionFunc* completionFunc,
 			   void* completionClientData,
 			   Boolean isFirstLookupInSession) {
-  // First, check whether the specified "streamName" exists as a local file:
-  FILE* fid = fopen(streamName, "rb");
-  Boolean const fileExists = fid != NULL;
+    // First, check whether the specified "streamName" exists as a local file:
+    if(false){
+        openURL(envir(),"live",streamName);
+        FILE* fid = fopen(streamName, "rb");
+        Boolean const fileExists = fid != NULL;
 
-  // Next, check whether we already have a "ServerMediaSession" for this file:
-  ServerMediaSession* sms = getServerMediaSession(streamName);
-  Boolean const smsExists = sms != NULL;
+        // Next, check whether we already have a "ServerMediaSession" for this file:
+        ServerMediaSession* sms = getServerMediaSession(streamName);
+        Boolean const smsExists = sms != NULL;
 
-  // Handle the four possibilities for "fileExists" and "smsExists":
-  if (!fileExists) {
-    if (smsExists) {
-      // "sms" was created for a file that no longer exists. Remove it:
-      removeServerMediaSession(sms);
+        // Handle the four possibilities for "fileExists" and "smsExists":
+        if (!fileExists) {
+            if (smsExists) {
+                // "sms" was created for a file that no longer exists. Remove it:
+                removeServerMediaSession(sms);
+            }
+
+            sms = NULL;
+        } else {
+            if (smsExists && isFirstLookupInSession) {
+                // Remove the existing "ServerMediaSession" and create a new one, in case the underlying
+                // file has changed in some way:
+                removeServerMediaSession(sms);
+                sms = NULL;
+            }
+
+            if (sms == NULL) {
+                sms = createNewSMS(envir(), streamName, fid);
+                addServerMediaSession(sms);
+            }
+
+            fclose(fid);
+        }
+    }
+    // Begin by creating a "RTSPClient" object.  Note that there is a separate "RTSPClient" object for each stream that we wish
+    // to receive (even if more than stream uses the same "rtsp://" URL).
+    RTSPClient* rtspClient = ourRTSPClient::createNew(envir(), streamName, RTSP_CLIENT_VERBOSITY_LEVEL, "mediaServer");
+    if (rtspClient == NULL) {
+        envir() << "Failed to create a RTSP client for URL \"" << rtspURL << "\": " << envir().getResultMsg() << "\n";
+        return;
     }
 
-    sms = NULL;
-  } else {
-    if (smsExists && isFirstLookupInSession) { 
-      // Remove the existing "ServerMediaSession" and create a new one, in case the underlying
-      // file has changed in some way:
-      removeServerMediaSession(sms); 
-      sms = NULL;
-    } 
+    ++rtspClientCount;
 
-    if (sms == NULL) {
-      sms = createNewSMS(envir(), streamName, fid); 
-      addServerMediaSession(sms);
-    }
-
-    fclose(fid);
-  }
-
-  if (completionFunc != NULL) {
+    // Next, send a RTSP "DESCRIBE" command, to get a SDP description for the stream.
+    // Note that this command - like all RTSP commands - is sent asynchronously; we do not block, waiting for a response.
+    // Instead, the following function call returns immediately, and we handle the RTSP response later, from within the event loop:
+    rtspClient->sendDescribeCommand(continueAfterDESCRIBE);
+    if (completionFunc != NULL) {
     (*completionFunc)(completionClientData, sms);
   }
 }
