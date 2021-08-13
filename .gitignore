@@ -38,3 +38,4 @@ Makefile
 /testProgs/testRTSPClient
 /testProgs/testWAVAudioStreamer
 /testProgs/vobStreamer
+/cmake-build-debug/
