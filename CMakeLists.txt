@@ -32,3 +32,17 @@ target_link_libraries(
         /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
         ssl
         crypto)
+add_executable(proxyServer
+        proxyServer/live555ProxyServer.cpp
+        proxyServer/DynamicRTSPServer.cpp
+        )
+
+target_link_libraries(
+        proxyServer
+        /home/ubuntu/Work/live/liveMedia/libliveMedia.a
+        /home/ubuntu/Work/live/groupsock/libgroupsock.a
+        /home/ubuntu/Work/live/BasicUsageEnvironment/libBasicUsageEnvironment.a
+        /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
+        ssl
+        crypto
+)

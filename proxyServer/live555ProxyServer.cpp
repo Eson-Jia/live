@@ -19,6 +19,7 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 
 #include "liveMedia.hh"
 #include "BasicUsageEnvironment.hh"
+#include "DynamicRTSPServer.hh"
 
 char const* progName;
 UsageEnvironment* env;
@@ -40,7 +41,7 @@ static RTSPServer* createRTSPServer(Port port) {
   if (proxyREGISTERRequests) {
     return RTSPServerWithREGISTERProxying::createNew(*env, port, authDB, authDBForREGISTER, 65, streamRTPOverTCP, verbosityLevel, username, password);
   } else {
-    return RTSPServer::createNew(*env, port, authDB);
+    return DynamicRTSPServer::createNew(*env, port, authDB);
   }
 }
 
