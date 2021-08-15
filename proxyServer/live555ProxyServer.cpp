@@ -41,7 +41,7 @@ static RTSPServer* createRTSPServer(Port port) {
   if (proxyREGISTERRequests) {
     return RTSPServerWithREGISTERProxying::createNew(*env, port, authDB, authDBForREGISTER, 65, streamRTPOverTCP, verbosityLevel, username, password);
   } else {
-    return DynamicRTSPServer::createNew(*env, port, authDB);
+    return DynamicRTSPServer::createNew(*env, port, authDB,0);
   }
 }
 
@@ -222,7 +222,7 @@ int main(int argc, char** argv) {
     ServerMediaSession* sms
       = ProxyServerMediaSession::createNew(*env, rtspServer,
 					   proxiedStreamURL, streamName,
-					   username, password, tunnelOverHTTPPortNum, verbosityLevel);
+					   username, password, tunnelOverHTTPPortNum, verbosityLevel,-1,NULL,NULL,NULL);
     rtspServer->addServerMediaSession(sms);
 
     char* proxyStreamURL = rtspServer->rtspURL(sms);

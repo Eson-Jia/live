@@ -35,6 +35,8 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "MediaTranscodingTable.hh"
 #endif
 
+#include <functional>
+
 // A subclass of "RTSPClient", used to refer to the particular "ProxyServerMediaSession" object being used.
 // It is used only within the implementation of "ProxyServerMediaSession", but is defined here, in case developers wish to
 // subclass it.
@@ -104,16 +106,30 @@ public:
 					    GenericMediaServer* ourMediaServer, // Note: We can be used by just one server
 					    char const* inputStreamURL, // the "rtsp://" URL of the stream we'll be proxying
 					    char const* streamName = NULL,
-					    char const* username = NULL, char const* password = NULL,
+					    char const* username = NULL,
+					    char const* password = NULL,
 					    portNumBits tunnelOverHTTPPortNum = 0,
 					        // for streaming the *proxied* (i.e., back-end) stream
 					    int verbosityLevel = 0,
 					    int socketNumToServer = -1,
-					    MediaTranscodingTable* transcodingTable = NULL);
+					    MediaTranscodingTable* transcodingTable = NULL,
+					    std::function<void(void*)> callback=NULL,
+					    void* data = NULL);
       // Hack: "tunnelOverHTTPPortNum" == 0xFFFF (i.e., all-ones) means: Stream RTP/RTCP-over-TCP, but *not* using HTTP
       // "verbosityLevel" == 1 means display basic proxy setup info; "verbosityLevel" == 2 means display RTSP client protocol also.
       // If "socketNumToServer" is >= 0, then it is the socket number of an already-existing TCP connection to the server.
       //      (In this case, "inputStreamURL" must point to the socket's endpoint, so that it can be accessed via the socket.)
+      static ProxyServerMediaSession* createNew(UsageEnvironment& env,
+                                                GenericMediaServer* ourMediaServer, // Note: We can be used by just one server
+                                                char const* inputStreamURL, // the "rtsp://" URL of the stream we'll be proxying
+                                                char const* streamName = NULL,
+                                                char const* username = NULL,
+                                                char const* password = NULL,
+                                                portNumBits tunnelOverHTTPPortNum = 0,
+                                                // for streaming the *proxied* (i.e., back-end) stream
+                                                int verbosityLevel = 0,
+                                                int socketNumToServer = -1,
+                                                MediaTranscodingTable* transcodingTable = NULL);
 
   virtual ~ProxyServerMediaSession();
 
@@ -132,10 +148,24 @@ protected:
 			  portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
 			  int socketNumToServer,
 			  MediaTranscodingTable* transcodingTable,
+			  std::function<void(void*)>callback,
+			  void* data,
 			  createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc
 			  = defaultCreateNewProxyRTSPClientFunc,
 			  portNumBits initialPortNum = 6970,
 			  Boolean multiplexRTCPWithRTP = False);
+
+  ProxyServerMediaSession(UsageEnvironment& env, GenericMediaServer* ourMediaServer,
+                          char const* inputStreamURL, char const* streamName,
+                          char const* username, char const* password,
+                          portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
+                          int socketNumToServer,
+                          MediaTranscodingTable* transcodingTable,
+                          createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc
+                          = defaultCreateNewProxyRTSPClientFunc,
+                          portNumBits initialPortNum = 6970,
+                          Boolean multiplexRTCPWithRTP = False);
+
 
   // If you subclass "ProxyRTSPClient", then you will also need to define your own function
   // - with signature "createNewProxyRTSPClientFunc" (see above) - that creates a new object
@@ -173,6 +203,8 @@ private:
   MediaTranscodingTable* fTranscodingTable;
   portNumBits fInitialPortNum;
   Boolean fMultiplexRTCPWithRTP;
+  std::function<void(void *)> callback;
+  void* fData;
 };
 
 

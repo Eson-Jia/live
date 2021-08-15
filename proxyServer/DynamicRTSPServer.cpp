@@ -58,21 +58,20 @@ void DynamicRTSPServer
 			   void* completionClientData,
 			   Boolean isFirstLookupInSession) {
     char const* proxiedStreamURL = "rtsp://192.168.10.180:554/Streaming/Channels/101";
-
-    ServerMediaSession* sms
-            = ProxyServerMediaSession::createNew(envir(),this,
+    ServerMediaSession* sms = NULL;
+    auto f = [](void * data){
+        auto the = static_cast<Data* >(data);
+        the->func( the->data,the->sms);
+    };
+    sms = ProxyServerMediaSession::createNew(envir(),this,
                                                  proxiedStreamURL, streamName,
-                                                 "admin", "123qweasd", 0, 5);
+                                                 "admin", "123qweasd", 0, 5,-1,NULL,f,
+                                                 new Data{completionFunc,completionClientData,sms});
 
     this->addServerMediaSession(sms);
 
-    auto f = [](void * data){
-        Data* ttt = static_cast<Data*>(data);
-        if(ttt->func!=NULL){
-            ttt->func(ttt->data,ttt->sms);
-        };
-    };
-    envir().taskScheduler().scheduleDelayedTask(3000000,f ,new Data{completionFunc,completionClientData,sms});
+
+//    envir().taskScheduler().scheduleDelayedTask(3000000,f ,new Data{completionFunc,completionClientData,sms});
 }
 
 // Special code for handling Matroska files:

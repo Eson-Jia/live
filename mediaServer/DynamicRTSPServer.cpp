@@ -86,23 +86,6 @@ void DynamicRTSPServer
             fclose(fid);
         }
     }
-    // Begin by creating a "RTSPClient" object.  Note that there is a separate "RTSPClient" object for each stream that we wish
-    // to receive (even if more than stream uses the same "rtsp://" URL).
-    RTSPClient* rtspClient = ourRTSPClient::createNew(envir(), streamName, RTSP_CLIENT_VERBOSITY_LEVEL, "mediaServer");
-    if (rtspClient == NULL) {
-        envir() << "Failed to create a RTSP client for URL \"" << rtspURL << "\": " << envir().getResultMsg() << "\n";
-        return;
-    }
-
-    ++rtspClientCount;
-
-    // Next, send a RTSP "DESCRIBE" command, to get a SDP description for the stream.
-    // Note that this command - like all RTSP commands - is sent asynchronously; we do not block, waiting for a response.
-    // Instead, the following function call returns immediately, and we handle the RTSP response later, from within the event loop:
-    rtspClient->sendDescribeCommand(continueAfterDESCRIBE);
-    if (completionFunc != NULL) {
-    (*completionFunc)(completionClientData, sms);
-  }
 }
 
 // Special code for handling Matroska files:

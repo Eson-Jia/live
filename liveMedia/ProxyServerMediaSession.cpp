@@ -85,11 +85,23 @@ ProxyServerMediaSession* ProxyServerMediaSession
 	    char const* inputStreamURL, char const* streamName,
 	    char const* username, char const* password,
 	    portNumBits tunnelOverHTTPPortNum, int verbosityLevel, int socketNumToServer,
-	    MediaTranscodingTable* transcodingTable) {
+	    MediaTranscodingTable* transcodingTable,std::function<void(void*)> callback,void *data) {
   return new ProxyServerMediaSession(env, ourMediaServer, inputStreamURL, streamName, username, password,
 				     tunnelOverHTTPPortNum, verbosityLevel, socketNumToServer,
-				     transcodingTable);
+				     transcodingTable,callback,data);
 }
+
+ProxyServerMediaSession* ProxyServerMediaSession
+::createNew(UsageEnvironment& env, GenericMediaServer* ourMediaServer,
+            char const* inputStreamURL, char const* streamName,
+            char const* username, char const* password,
+            portNumBits tunnelOverHTTPPortNum, int verbosityLevel, int socketNumToServer,
+            MediaTranscodingTable* transcodingTable) {
+    return new ProxyServerMediaSession(env, ourMediaServer, inputStreamURL, streamName, username, password,
+                                       tunnelOverHTTPPortNum, verbosityLevel, socketNumToServer,
+                                       transcodingTable);
+}
+
 
 
 ProxyServerMediaSession
@@ -99,6 +111,8 @@ ProxyServerMediaSession
 			  portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
 			  int socketNumToServer,
 			  MediaTranscodingTable* transcodingTable,
+			  std::function<void(void*)> callback,
+			  void* data,
 			  createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc,
 			  portNumBits initialPortNum, Boolean multiplexRTCPWithRTP)
   : ServerMediaSession(env, streamName, NULL, NULL, False, NULL),
@@ -107,7 +121,7 @@ ProxyServerMediaSession
     fPresentationTimeSessionNormalizer(new PresentationTimeSessionNormalizer(envir())),
     fCreateNewProxyRTSPClientFunc(ourCreateNewProxyRTSPClientFunc),
     fTranscodingTable(transcodingTable),
-    fInitialPortNum(initialPortNum), fMultiplexRTCPWithRTP(multiplexRTCPWithRTP) {
+    fInitialPortNum(initialPortNum), fMultiplexRTCPWithRTP(multiplexRTCPWithRTP),callback(callback),fData(data) {
   // Open a RTSP connection to the input stream, and send a "DESCRIBE" command.
   // We'll use the SDP description in the response to set ourselves up.
   fProxyRTSPClient
@@ -117,6 +131,30 @@ ProxyServerMediaSession
 				       socketNumToServer);
   fProxyRTSPClient->sendDESCRIBE();
 }
+
+ProxyServerMediaSession
+::ProxyServerMediaSession(UsageEnvironment& env, GenericMediaServer* ourMediaServer,
+                          char const* inputStreamURL, char const* streamName,
+                          char const* username, char const* password,
+                          portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
+                          int socketNumToServer,
+                          MediaTranscodingTable* transcodingTable,
+                          createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc,
+                          portNumBits initialPortNum, Boolean multiplexRTCPWithRTP)
+                          : ProxyServerMediaSession(env,ourMediaServer,inputStreamURL,streamName,username,password,
+                                                    tunnelOverHTTPPortNum,verbosityLevel,socketNumToServer,
+                                                    transcodingTable,NULL,NULL,ourCreateNewProxyRTSPClientFunc,
+                                                    initialPortNum,multiplexRTCPWithRTP){
+    // Open a RTSP connection to the input stream, and send a "DESCRIBE" command.
+    // We'll use the SDP description in the response to set ourselves up.
+    fProxyRTSPClient
+    = (*fCreateNewProxyRTSPClientFunc)(*this, inputStreamURL, username, password,
+            tunnelOverHTTPPortNum,
+            verbosityLevel > 0 ? verbosityLevel-1 : verbosityLevel,
+            socketNumToServer);
+    fProxyRTSPClient->sendDESCRIBE();
+}
+
 
 ProxyServerMediaSession::~ProxyServerMediaSession() {
   if (fVerbosityLevel > 0) {
@@ -178,6 +216,7 @@ void ProxyServerMediaSession::continueAfterDESCRIBE(char const* sdpDescription) 
       }
     }
   } while (0);
+  callback(fData);
 }
 
 void ProxyServerMediaSession::resetDESCRIBEState() {
