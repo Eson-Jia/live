@@ -105,6 +105,8 @@ public:
   static ProxyServerMediaSession* createNew(UsageEnvironment& env,
 					    GenericMediaServer* ourMediaServer, // Note: We can be used by just one server
 					    char const* inputStreamURL, // the "rtsp://" URL of the stream we'll be proxying
+                        lookupServerMediaSessionCompletionFunc* callback,
+                        void* data,
 					    char const* streamName = NULL,
 					    char const* username = NULL,
 					    char const* password = NULL,
@@ -112,9 +114,7 @@ public:
 					        // for streaming the *proxied* (i.e., back-end) stream
 					    int verbosityLevel = 0,
 					    int socketNumToServer = -1,
-					    MediaTranscodingTable* transcodingTable = NULL,
-					    std::function<void(void*)> callback=NULL,
-					    void* data = NULL);
+					    MediaTranscodingTable* transcodingTable = NULL);
       // Hack: "tunnelOverHTTPPortNum" == 0xFFFF (i.e., all-ones) means: Stream RTP/RTCP-over-TCP, but *not* using HTTP
       // "verbosityLevel" == 1 means display basic proxy setup info; "verbosityLevel" == 2 means display RTSP client protocol also.
       // If "socketNumToServer" is >= 0, then it is the socket number of an already-existing TCP connection to the server.
@@ -148,7 +148,7 @@ protected:
 			  portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
 			  int socketNumToServer,
 			  MediaTranscodingTable* transcodingTable,
-			  std::function<void(void*)>callback,
+			  lookupServerMediaSessionCompletionFunc*callback,
 			  void* data,
 			  createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc
 			  = defaultCreateNewProxyRTSPClientFunc,
@@ -203,7 +203,7 @@ private:
   MediaTranscodingTable* fTranscodingTable;
   portNumBits fInitialPortNum;
   Boolean fMultiplexRTCPWithRTP;
-  std::function<void(void *)> callback;
+  lookupServerMediaSessionCompletionFunc* callback;
   void* fData;
 };
 

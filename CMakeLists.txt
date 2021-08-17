@@ -35,6 +35,9 @@ target_link_libraries(
 add_executable(proxyServer
         proxyServer/live555ProxyServer.cpp
         proxyServer/DynamicRTSPServer.cpp
+        liveMedia/ProxyServerMediaSession.cpp
+        liveMedia/RTSPServer.cpp
+        liveMedia/GenericMediaServer.cpp
         )
 
 target_link_libraries(

@@ -47,31 +47,21 @@ DynamicRTSPServer::~DynamicRTSPServer() {
 static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 					char const* fileName, FILE* fid); // forward
 
-struct Data {
-    lookupServerMediaSessionCompletionFunc* func;
-    void * data;
-    ServerMediaSession*sms;
-};
 void DynamicRTSPServer
 ::lookupServerMediaSession(char const* streamName,
 			   lookupServerMediaSessionCompletionFunc* completionFunc,
 			   void* completionClientData,
 			   Boolean isFirstLookupInSession) {
     char const* proxiedStreamURL = "rtsp://192.168.10.180:554/Streaming/Channels/101";
-    ServerMediaSession* sms = NULL;
-    auto f = [](void * data){
-        auto the = static_cast<Data* >(data);
-        the->func( the->data,the->sms);
-    };
-    sms = ProxyServerMediaSession::createNew(envir(),this,
-                                                 proxiedStreamURL, streamName,
-                                                 "admin", "123qweasd", 0, 5,-1,NULL,f,
-                                                 new Data{completionFunc,completionClientData,sms});
-
+    ServerMediaSession* sms = ProxyServerMediaSession::createNew(envir(),this,
+                                                 proxiedStreamURL,completionFunc,
+                                                 completionClientData,streamName,
+                                                 "admin", "123qweasd",
+                                                 0, 5,
+                                                 -1,NULL);
     this->addServerMediaSession(sms);
-
-
-//    envir().taskScheduler().scheduleDelayedTask(3000000,f ,new Data{completionFunc,completionClientData,sms});
+//    completionFunc(completionClientData,sms);
+    printf("log\n");
 }
 
 // Special code for handling Matroska files:

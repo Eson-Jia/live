@@ -83,7 +83,7 @@ char* RTSPServer::rtspURLPrefix(int clientSocket, Boolean useIPv6) const {
   } else {
     SOCKLEN_T namelen = sizeof ourAddress;
 
-    getsockname(clientSocket, (struct sockaddr*)&ourAddress, &namelen);
+    getsockname(clientSocket, (struct sockaddr*)&ourAddress, reinterpret_cast<unsigned  int *>(&namelen));
   }
   
   char urlBuffer[100]; // more than big enough for "rtsp://<ip-address>:<port>/"
@@ -358,8 +358,15 @@ void RTSPServer::RTSPClientConnection
 
 void RTSPServer::RTSPClientConnection
 ::DESCRIBELookupCompletionFunction(void* clientData, ServerMediaSession* sessionLookedUp) {
-  RTSPServer::RTSPClientConnection* connection = (RTSPServer::RTSPClientConnection*)clientData;
+    printf("DESCRIBELookupCompletionFunction\n");
+    RTSPServer::RTSPClientConnection* connection = (RTSPServer::RTSPClientConnection*)clientData;
+    printf("RTSPServer::RTSPClientConnection* connection = (RTSPServer::RTSPClientConnection*)clientData\n");
+    if(connection==NULL){
+      printf(" connection==NULL \n");
+      return;
+    }
   connection->handleCmd_DESCRIBE_afterLookup(sessionLookedUp);
+    printf("connection->handleCmd_DESCRIBE_afterLookup(sessionLookedUp)\n");
 }
 
 void RTSPServer::RTSPClientConnection
@@ -378,12 +385,14 @@ void RTSPServer::RTSPClientConnection
 
     // Then, assemble a SDP description for this session:
     sdpDescription = session->generateSDPDescription(fAddressFamily);
+    printf("-----------%s\n");
     if (sdpDescription == NULL) {
       // This usually means that a file name that was specified for a
       // "ServerMediaSubsession" does not exist.
       setRTSPResponse("404 File Not Found, Or In Incorrect Format");
       break;
     }
+    printf("    unsigned sdpDescriptionSize = strlen(sdpDescription);\n");
     unsigned sdpDescriptionSize = strlen(sdpDescription);
     
     // Also, generate our RTSP URL, for the "Content-Base:" header
@@ -793,7 +802,7 @@ void RTSPServer::RTSPClientConnection::handleRequestBytes(int newBytesRead) {
 	  handleCmd_notSupported();
 	}
       } else if (strcmp(cmdName, "DESCRIBE") == 0) {
-	handleCmd_DESCRIBE(urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
+      handleCmd_DESCRIBE(urlPreSuffix, urlSuffix, (char const*)fRequestBuffer);
       } else if (strcmp(cmdName, "SETUP") == 0) {
 	Boolean areAuthenticated = True;
 
@@ -1499,7 +1508,7 @@ void RTSPServer::RTSPClientSession
     // Make sure that we transmit on the same interface that's used by the client
     // (in case we're a multi-homed server):
     struct sockaddr_storage sourceAddr; SOCKLEN_T namelen = sizeof sourceAddr;
-    getsockname(fOurClientConnection->fClientInputSocket, (struct sockaddr*)&sourceAddr, &namelen);
+    getsockname(fOurClientConnection->fClientInputSocket, (struct sockaddr*)&sourceAddr, reinterpret_cast<unsigned  int *>(&namelen));
     
     subsession->getStreamParameters(fOurSessionId, fOurClientConnection->fClientAddr,
 				    clientRTPPort, clientRTCPPort,

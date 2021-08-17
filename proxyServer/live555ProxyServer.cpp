@@ -220,9 +220,7 @@ int main(int argc, char** argv) {
       sprintf(streamName, "proxyStream-%d", i); // there's more than one stream; distinguish them by name
     }
     ServerMediaSession* sms
-      = ProxyServerMediaSession::createNew(*env, rtspServer,
-					   proxiedStreamURL, streamName,
-					   username, password, tunnelOverHTTPPortNum, verbosityLevel,-1,NULL,NULL,NULL);
+      = ProxyServerMediaSession::createNew(*env, rtspServer,proxiedStreamURL);
     rtspServer->addServerMediaSession(sms);
 
     char* proxyStreamURL = rtspServer->rtspURL(sms);
