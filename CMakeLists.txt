@@ -38,6 +38,14 @@ add_executable(proxyServer
         liveMedia/ProxyServerMediaSession.cpp
         liveMedia/RTSPServer.cpp
         liveMedia/GenericMediaServer.cpp
+        liveMedia/OnDemandServerMediaSubsession.cpp
+        liveMedia/VideoRTPSink.cpp
+        liveMedia/H264or5VideoRTPSink.cpp
+        liveMedia/ServerMediaSession.cpp
+        liveMedia/H265VideoRTPSink.cpp
+        liveMedia/H265VideoRTPSource.cpp
+        liveMedia/MultiFramedRTPSource.cpp
+        liveMedia/MediaSession.cpp
         )
 
 target_link_libraries(
