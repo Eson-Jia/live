@@ -358,15 +358,8 @@ void RTSPServer::RTSPClientConnection
 
 void RTSPServer::RTSPClientConnection
 ::DESCRIBELookupCompletionFunction(void* clientData, ServerMediaSession* sessionLookedUp) {
-    printf("DESCRIBELookupCompletionFunction\n");
     RTSPServer::RTSPClientConnection* connection = (RTSPServer::RTSPClientConnection*)clientData;
-    printf("RTSPServer::RTSPClientConnection* connection = (RTSPServer::RTSPClientConnection*)clientData\n");
-    if(connection==NULL){
-      printf(" connection==NULL \n");
-      return;
-    }
-  connection->handleCmd_DESCRIBE_afterLookup(sessionLookedUp);
-    printf("connection->handleCmd_DESCRIBE_afterLookup(sessionLookedUp)\n");
+    connection->handleCmd_DESCRIBE_afterLookup(sessionLookedUp);
 }
 
 void RTSPServer::RTSPClientConnection
@@ -385,14 +378,12 @@ void RTSPServer::RTSPClientConnection
 
     // Then, assemble a SDP description for this session:
     sdpDescription = session->generateSDPDescription(fAddressFamily);
-    printf("-----------%s\n");
     if (sdpDescription == NULL) {
       // This usually means that a file name that was specified for a
       // "ServerMediaSubsession" does not exist.
       setRTSPResponse("404 File Not Found, Or In Incorrect Format");
       break;
     }
-    printf("    unsigned sdpDescriptionSize = strlen(sdpDescription);\n");
     unsigned sdpDescriptionSize = strlen(sdpDescription);
     
     // Also, generate our RTSP URL, for the "Content-Base:" header
