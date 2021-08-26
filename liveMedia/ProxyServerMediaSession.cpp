@@ -82,15 +82,14 @@ defaultCreateNewProxyRTSPClientFunc(ProxyServerMediaSession& ourServerMediaSessi
 
 ProxyServerMediaSession* ProxyServerMediaSession
 ::createNew(UsageEnvironment& env, GenericMediaServer* ourMediaServer,
-	    char const* inputStreamURL,
-	    lookupServerMediaSessionCompletionFunc* callback,void *data,
+	    char const* inputStreamURL,void *data,
 	    char const* streamName,
 	    char const* username, char const* password,
 	    portNumBits tunnelOverHTTPPortNum, int verbosityLevel, int socketNumToServer,
 	    MediaTranscodingTable* transcodingTable) {
   return new ProxyServerMediaSession(env, ourMediaServer, inputStreamURL, streamName, username, password,
 				     tunnelOverHTTPPortNum, verbosityLevel, socketNumToServer,
-				     transcodingTable,callback,data);
+				     transcodingTable,data);
 }
 
 ProxyServerMediaSession* ProxyServerMediaSession
@@ -113,7 +112,6 @@ ProxyServerMediaSession
 			  portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
 			  int socketNumToServer,
 			  MediaTranscodingTable* transcodingTable,
-			  lookupServerMediaSessionCompletionFunc* callback,
 			  void* data,
 			  createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc,
 			  portNumBits initialPortNum, Boolean multiplexRTCPWithRTP)
@@ -123,7 +121,7 @@ ProxyServerMediaSession
     fPresentationTimeSessionNormalizer(new PresentationTimeSessionNormalizer(envir())),
     fCreateNewProxyRTSPClientFunc(ourCreateNewProxyRTSPClientFunc),
     fTranscodingTable(transcodingTable),
-    fInitialPortNum(initialPortNum), fMultiplexRTCPWithRTP(multiplexRTCPWithRTP),callback(callback),fData(data) {
+    fInitialPortNum(initialPortNum), fMultiplexRTCPWithRTP(multiplexRTCPWithRTP),fData(data) {
   // Open a RTSP connection to the input stream, and send a "DESCRIBE" command.
   // We'll use the SDP description in the response to set ourselves up.
   fProxyRTSPClient
@@ -145,7 +143,7 @@ ProxyServerMediaSession
                           portNumBits initialPortNum, Boolean multiplexRTCPWithRTP)
                           : ProxyServerMediaSession(env,ourMediaServer,inputStreamURL,streamName,username,password,
                                                     tunnelOverHTTPPortNum,verbosityLevel,socketNumToServer,
-                                                    transcodingTable,NULL,NULL,ourCreateNewProxyRTSPClientFunc,
+                                                    transcodingTable,NULL,ourCreateNewProxyRTSPClientFunc,
                                                     initialPortNum,multiplexRTCPWithRTP){
 }
 
@@ -190,7 +188,6 @@ Boolean ProxyServerMediaSession::allowProxyingForSubsession(MediaSubsession cons
 
 void ProxyServerMediaSession::continueAfterDESCRIBE(char const* sdpDescription) {
   describeCompletedFlag = 1;
-
   // Create a (client) "MediaSession" object from the stream's SDP description ("resultString"), then iterate through its
   // "MediaSubsession" objects, to set up corresponding "ServerMediaSubsession" objects that we'll use to serve the stream's tracks.
   do {
@@ -210,9 +207,9 @@ void ProxyServerMediaSession::continueAfterDESCRIBE(char const* sdpDescription) 
       }
     }
   } while (0);
-  if(fProxyRTSPClient->fDoneDESCRIBE == False &&  callback){
-      printf("test lib\n");
-      (*callback)(fData, this);
+  if(fProxyRTSPClient->fDoneDESCRIBE == False && fData!=NULL){
+      auto  newFlag = reinterpret_cast<char *>(fData);
+      *newFlag = '1';
   }
 }
 

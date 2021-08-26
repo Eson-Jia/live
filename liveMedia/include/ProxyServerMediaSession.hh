@@ -105,7 +105,6 @@ public:
   static ProxyServerMediaSession* createNew(UsageEnvironment& env,
 					    GenericMediaServer* ourMediaServer, // Note: We can be used by just one server
 					    char const* inputStreamURL, // the "rtsp://" URL of the stream we'll be proxying
-                        lookupServerMediaSessionCompletionFunc* callback,
                         void* data,
 					    char const* streamName = NULL,
 					    char const* username = NULL,
@@ -148,7 +147,6 @@ protected:
 			  portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
 			  int socketNumToServer,
 			  MediaTranscodingTable* transcodingTable,
-			  lookupServerMediaSessionCompletionFunc*callback,
 			  void* data,
 			  createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc
 			  = defaultCreateNewProxyRTSPClientFunc,
@@ -203,7 +201,6 @@ private:
   MediaTranscodingTable* fTranscodingTable;
   portNumBits fInitialPortNum;
   Boolean fMultiplexRTCPWithRTP;
-  lookupServerMediaSessionCompletionFunc* callback;
   void* fData;
 };
 
