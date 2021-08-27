@@ -53,39 +53,34 @@ void DynamicRTSPServer
 			   void* completionClientData,
 			   Boolean isFirstLookupInSession) {
     // First, check whether the specified "streamName" exists as a local file:
-    if(false){
-        openURL(envir(),"live",streamName);
-        FILE* fid = fopen(streamName, "rb");
-        Boolean const fileExists = fid != NULL;
+    FILE* fid = fopen(streamName, "rb");
+    Boolean const fileExists = fid != NULL;
 
-        // Next, check whether we already have a "ServerMediaSession" for this file:
-        ServerMediaSession* sms = getServerMediaSession(streamName);
-        Boolean const smsExists = sms != NULL;
+    // Next, check whether we already have a "ServerMediaSession" for this file:
+    ServerMediaSession* sms = getServerMediaSession(streamName);
+    Boolean const smsExists = sms != NULL;
 
-        // Handle the four possibilities for "fileExists" and "smsExists":
-        if (!fileExists) {
-            if (smsExists) {
-                // "sms" was created for a file that no longer exists. Remove it:
-                removeServerMediaSession(sms);
-            }
-
-            sms = NULL;
-        } else {
-            if (smsExists && isFirstLookupInSession) {
-                // Remove the existing "ServerMediaSession" and create a new one, in case the underlying
-                // file has changed in some way:
-                removeServerMediaSession(sms);
-                sms = NULL;
-            }
-
-            if (sms == NULL) {
-                sms = createNewSMS(envir(), streamName, fid);
-                addServerMediaSession(sms);
-            }
-
-            fclose(fid);
+    // Handle the four possibilities for "fileExists" and "smsExists":
+    if (!fileExists) {
+        if (smsExists) {
+            // "sms" was created for a file that no longer exists. Remove it:
+            removeServerMediaSession(sms);
         }
+        sms = NULL;
+    } else {
+        if (smsExists && isFirstLookupInSession) {
+            // Remove the existing "ServerMediaSession" and create a new one, in case the underlying
+            // file has changed in some way:
+            removeServerMediaSession(sms);
+            sms = NULL;
+        }
+        if (sms == NULL) {
+            sms = createNewSMS(envir(), streamName, fid);
+            addServerMediaSession(sms);
+        }
+        fclose(fid);
     }
+    completionFunc(completionClientData,sms);
 }
 
 // Special code for handling Matroska files:
@@ -207,7 +202,6 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
     // Assumed to be a DV Video file
     // First, make sure that the RTPSinks' buffers will be large enough to handle the huge size of DV frames (as big as 288000).
     OutPacketBuffer::maxSize = 300000;
-
     NEW_SMS("DV Video");
     sms->addSubsession(DVVideoFileServerMediaSubsession::createNew(env, fileName, reuseSource));
   } else if (strcmp(extension, ".mkv") == 0 || strcmp(extension, ".webm") == 0) {
