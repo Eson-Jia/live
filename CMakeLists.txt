@@ -16,6 +16,7 @@ add_executable(live555MediaServer
         mediaServer/DynamicRTSPServer.cpp
         mediaServer/testRTSPClient.cpp
         )
+
 find_library(GROUP_SOCK_LIB NAMES groupsock HINTS groupsock)
 find_library(LIVE_MEDIA NAMES liveMedia  HINTS liveMedia)
 find_library(BAC_USG_ENV NAMES BasicUsageEnvironment HINTS BasicUsageEnvironment )
@@ -32,6 +33,7 @@ target_link_libraries(
         /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
         ssl
         crypto)
+
 add_executable(proxyServer
         proxyServer/live555ProxyServer.cpp
         proxyServer/DynamicRTSPServer.cpp
