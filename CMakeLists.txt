@@ -36,7 +36,6 @@ target_link_libraries(
 
 add_executable(proxyServer
         proxyServer/live555ProxyServer.cpp
-        proxyServer/DynamicRTSPServer.cpp
         liveMedia/ProxyServerMediaSession.cpp
         liveMedia/RTSPServer.cpp
         liveMedia/GenericMediaServer.cpp
@@ -67,6 +66,32 @@ add_executable(
 
 target_link_libraries(
         hlsProxy
+        /home/ubuntu/Work/live/liveMedia/libliveMedia.a
+        /home/ubuntu/Work/live/groupsock/libgroupsock.a
+        /home/ubuntu/Work/live/BasicUsageEnvironment/libBasicUsageEnvironment.a
+        /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
+        ssl
+        crypto
+)
+
+add_executable(dynamicProxyServer
+        dynamicProxyServer/dynamicProxyServer.cpp
+        dynamicProxyServer/DynamicRTSPProxyServer.cpp
+        liveMedia/ProxyServerMediaSession.cpp
+        liveMedia/RTSPServer.cpp
+        liveMedia/GenericMediaServer.cpp
+        liveMedia/OnDemandServerMediaSubsession.cpp
+        liveMedia/VideoRTPSink.cpp
+        liveMedia/H264or5VideoRTPSink.cpp
+        liveMedia/ServerMediaSession.cpp
+        liveMedia/H265VideoRTPSink.cpp
+        liveMedia/H265VideoRTPSource.cpp
+        liveMedia/MultiFramedRTPSource.cpp
+        liveMedia/MediaSession.cpp
+        )
+
+target_link_libraries(
+        dynamicProxyServer
         /home/ubuntu/Work/live/liveMedia/libliveMedia.a
         /home/ubuntu/Work/live/groupsock/libgroupsock.a
         /home/ubuntu/Work/live/BasicUsageEnvironment/libBasicUsageEnvironment.a
