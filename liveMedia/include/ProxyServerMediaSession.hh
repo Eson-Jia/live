@@ -35,8 +35,6 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include "MediaTranscodingTable.hh"
 #endif
 
-#include <functional>
-
 // A subclass of "RTSPClient", used to refer to the particular "ProxyServerMediaSession" object being used.
 // It is used only within the implementation of "ProxyServerMediaSession", but is defined here, in case developers wish to
 // subclass it.
