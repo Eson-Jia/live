@@ -39,3 +39,10 @@ Makefile
 /testProgs/testWAVAudioStreamer
 /testProgs/vobStreamer
 /cmake-build-debug/
+
+README.md
+
+*.264
+*.265
+*.ts
+*.mp3
