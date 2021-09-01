@@ -59,3 +59,18 @@ target_link_libraries(
         ssl
         crypto
 )
+
+add_executable(
+        hlsProxy
+        hlsProxy/live555HLSProxy.cpp
+        )
+
+target_link_libraries(
+        hlsProxy
+        /home/ubuntu/Work/live/liveMedia/libliveMedia.a
+        /home/ubuntu/Work/live/groupsock/libgroupsock.a
+        /home/ubuntu/Work/live/BasicUsageEnvironment/libBasicUsageEnvironment.a
+        /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
+        ssl
+        crypto
+)
