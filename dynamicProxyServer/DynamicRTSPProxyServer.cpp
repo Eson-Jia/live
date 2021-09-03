@@ -2,7 +2,7 @@
 // Created by ubuntu on 2021/9/1.
 //
 
-#include <ProxyServerMediaSession.hh>
+#include "AsyncProxyServerMediaSession.h"
 #include "DynamicRTSPProxyServer.h"
 
 
@@ -36,14 +36,11 @@ void DynamicRTSPProxyServer::lookupServerMediaSession(const char *streamName,
     sms = getServerMediaSession(streamName);
     Boolean const smsExists = sms != NULL;
     if (!smsExists) {
-        char flag;
-        sms = ProxyServerMediaSession::createNew(envir(), this,
-                                                 proxiedStreamURL,
-                                                 &flag, streamName,
-                                                 "admin", "123qweasd",
-                                                 0, 5,
-                                                 -1, NULL);
-        envir().taskScheduler().doEventLoop(&flag);
+        Boolean flag;
+        sms = AsyncProxyServerMediaSession::createNew(
+                envir(), this, proxiedStreamURL, streamName, "admin",
+                "123qweasd", &flag, 0, 5, -1);
+        envir().taskScheduler().doEventLoop(reinterpret_cast<volatile char *>(&flag));
         this->addServerMediaSession(sms);
     }
     completionFunc(completionClientData, sms);

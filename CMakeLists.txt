@@ -77,6 +77,7 @@ target_link_libraries(
 add_executable(dynamicProxyServer
         dynamicProxyServer/dynamicProxyServer.cpp
         dynamicProxyServer/DynamicRTSPProxyServer.cpp
+        dynamicProxyServer/AsyncProxyServerMediaSession.cpp
         liveMedia/ProxyServerMediaSession.cpp
         liveMedia/RTSPServer.cpp
         liveMedia/GenericMediaServer.cpp
