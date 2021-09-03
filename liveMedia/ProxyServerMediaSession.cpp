@@ -82,27 +82,14 @@ defaultCreateNewProxyRTSPClientFunc(ProxyServerMediaSession& ourServerMediaSessi
 
 ProxyServerMediaSession* ProxyServerMediaSession
 ::createNew(UsageEnvironment& env, GenericMediaServer* ourMediaServer,
-	    char const* inputStreamURL,void *data,
-	    char const* streamName,
+	    char const* inputStreamURL, char const* streamName,
 	    char const* username, char const* password,
 	    portNumBits tunnelOverHTTPPortNum, int verbosityLevel, int socketNumToServer,
 	    MediaTranscodingTable* transcodingTable) {
   return new ProxyServerMediaSession(env, ourMediaServer, inputStreamURL, streamName, username, password,
 				     tunnelOverHTTPPortNum, verbosityLevel, socketNumToServer,
-				     transcodingTable,data);
+				     transcodingTable);
 }
-
-ProxyServerMediaSession* ProxyServerMediaSession
-::createNew(UsageEnvironment& env, GenericMediaServer* ourMediaServer,
-            char const* inputStreamURL, char const* streamName,
-            char const* username, char const* password,
-            portNumBits tunnelOverHTTPPortNum, int verbosityLevel, int socketNumToServer,
-            MediaTranscodingTable* transcodingTable) {
-    return new ProxyServerMediaSession(env, ourMediaServer, inputStreamURL, streamName, username, password,
-                                       tunnelOverHTTPPortNum, verbosityLevel, socketNumToServer,
-                                       transcodingTable);
-}
-
 
 
 ProxyServerMediaSession
@@ -112,7 +99,6 @@ ProxyServerMediaSession
 			  portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
 			  int socketNumToServer,
 			  MediaTranscodingTable* transcodingTable,
-			  void* data,
 			  createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc,
 			  portNumBits initialPortNum, Boolean multiplexRTCPWithRTP)
   : ServerMediaSession(env, streamName, NULL, NULL, False, NULL),
@@ -121,7 +107,7 @@ ProxyServerMediaSession
     fPresentationTimeSessionNormalizer(new PresentationTimeSessionNormalizer(envir())),
     fCreateNewProxyRTSPClientFunc(ourCreateNewProxyRTSPClientFunc),
     fTranscodingTable(transcodingTable),
-    fInitialPortNum(initialPortNum), fMultiplexRTCPWithRTP(multiplexRTCPWithRTP),fData(data) {
+    fInitialPortNum(initialPortNum), fMultiplexRTCPWithRTP(multiplexRTCPWithRTP) {
   // Open a RTSP connection to the input stream, and send a "DESCRIBE" command.
   // We'll use the SDP description in the response to set ourselves up.
   fProxyRTSPClient
@@ -131,22 +117,6 @@ ProxyServerMediaSession
 				       socketNumToServer);
   fProxyRTSPClient->sendDESCRIBE();
 }
-
-ProxyServerMediaSession
-::ProxyServerMediaSession(UsageEnvironment& env, GenericMediaServer* ourMediaServer,
-                          char const* inputStreamURL, char const* streamName,
-                          char const* username, char const* password,
-                          portNumBits tunnelOverHTTPPortNum, int verbosityLevel,
-                          int socketNumToServer,
-                          MediaTranscodingTable* transcodingTable,
-                          createNewProxyRTSPClientFunc* ourCreateNewProxyRTSPClientFunc,
-                          portNumBits initialPortNum, Boolean multiplexRTCPWithRTP)
-                          : ProxyServerMediaSession(env,ourMediaServer,inputStreamURL,streamName,username,password,
-                                                    tunnelOverHTTPPortNum,verbosityLevel,socketNumToServer,
-                                                    transcodingTable,NULL,ourCreateNewProxyRTSPClientFunc,
-                                                    initialPortNum,multiplexRTCPWithRTP){
-}
-
 
 ProxyServerMediaSession::~ProxyServerMediaSession() {
   if (fVerbosityLevel > 0) {
@@ -188,6 +158,7 @@ Boolean ProxyServerMediaSession::allowProxyingForSubsession(MediaSubsession cons
 
 void ProxyServerMediaSession::continueAfterDESCRIBE(char const* sdpDescription) {
   describeCompletedFlag = 1;
+
   // Create a (client) "MediaSession" object from the stream's SDP description ("resultString"), then iterate through its
   // "MediaSubsession" objects, to set up corresponding "ServerMediaSubsession" objects that we'll use to serve the stream's tracks.
   do {
@@ -207,10 +178,6 @@ void ProxyServerMediaSession::continueAfterDESCRIBE(char const* sdpDescription) 
       }
     }
   } while (0);
-  if(fProxyRTSPClient->fDoneDESCRIBE == False && fData!=NULL){
-      auto  newFlag = reinterpret_cast<char *>(fData);
-      *newFlag = '1';
-  }
 }
 
 void ProxyServerMediaSession::resetDESCRIBEState() {
