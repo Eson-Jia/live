@@ -21,16 +21,13 @@ find_library(GROUP_SOCK_LIB NAMES groupsock HINTS groupsock)
 find_library(LIVE_MEDIA NAMES liveMedia  HINTS liveMedia)
 find_library(BAC_USG_ENV NAMES BasicUsageEnvironment HINTS BasicUsageEnvironment )
 find_library(USG_ENV NAMES UsageEnvironment HINTS UsageEnvironment )
+
 target_link_libraries(
         live555MediaServer
-#        ${LIVE_MEDIA}
-#        ${USG_ENV}
-#        ${GROUP_SOCK}
-#        ${BAC_USG_ENV}
-        /home/ubuntu/Work/live/liveMedia/libliveMedia.a
-        /home/ubuntu/Work/live/groupsock/libgroupsock.a
-        /home/ubuntu/Work/live/BasicUsageEnvironment/libBasicUsageEnvironment.a
-        /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
+        ${LIVE_MEDIA}
+        ${GROUP_SOCK_LIB}
+        ${BAC_USG_ENV}
+        ${USG_ENV}
         ssl
         crypto)
 
@@ -51,10 +48,10 @@ add_executable(proxyServer
 
 target_link_libraries(
         proxyServer
-        /home/ubuntu/Work/live/liveMedia/libliveMedia.a
-        /home/ubuntu/Work/live/groupsock/libgroupsock.a
-        /home/ubuntu/Work/live/BasicUsageEnvironment/libBasicUsageEnvironment.a
-        /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
+        ${LIVE_MEDIA}
+        ${GROUP_SOCK_LIB}
+        ${BAC_USG_ENV}
+        ${USG_ENV}
         ssl
         crypto
 )
@@ -66,10 +63,10 @@ add_executable(
 
 target_link_libraries(
         hlsProxy
-        /home/ubuntu/Work/live/liveMedia/libliveMedia.a
-        /home/ubuntu/Work/live/groupsock/libgroupsock.a
-        /home/ubuntu/Work/live/BasicUsageEnvironment/libBasicUsageEnvironment.a
-        /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
+        ${LIVE_MEDIA}
+        ${GROUP_SOCK_LIB}
+        ${BAC_USG_ENV}
+        ${USG_ENV}
         ssl
         crypto
 )
@@ -83,10 +80,10 @@ add_executable(dynamicProxyServer
 
 target_link_libraries(
         dynamicProxyServer
-        /home/ubuntu/Work/live/liveMedia/libliveMedia.a
-        /home/ubuntu/Work/live/groupsock/libgroupsock.a
-        /home/ubuntu/Work/live/BasicUsageEnvironment/libBasicUsageEnvironment.a
-        /home/ubuntu/Work/live/UsageEnvironment/libUsageEnvironment.a
+        ${LIVE_MEDIA}
+        ${GROUP_SOCK_LIB}
+        ${BAC_USG_ENV}
+        ${USG_ENV}
         ssl
         crypto
 )
