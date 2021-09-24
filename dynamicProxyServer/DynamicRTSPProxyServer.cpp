@@ -36,11 +36,11 @@ void DynamicRTSPProxyServer::lookupServerMediaSession(const char *streamName,
     sms = getServerMediaSession(streamName);
     Boolean const smsExists = sms != NULL;
     if (!smsExists) {
-        Boolean flag;
+        Boolean *flag = new Boolean();
         sms = AsyncProxyServerMediaSession::createNew(
                 envir(), this, proxiedStreamURL, streamName, "admin",
-                "123qweasd", &flag, 0, 5, -1);
-        envir().taskScheduler().doEventLoop(reinterpret_cast<volatile char *>(&flag));
+                "123qweasd", flag, 0, 5, -1);
+        envir().taskScheduler().doEventLoop(reinterpret_cast<volatile char *>(flag));
         this->addServerMediaSession(sms);
     }
     completionFunc(completionClientData, sms);
